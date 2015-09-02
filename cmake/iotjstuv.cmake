@@ -15,14 +15,14 @@
 cmake_minimum_required(VERSION 2.8)
 
 file(GLOB LIB_IOTJS_SRC ${SRC_ROOT}/*.cpp
-                        ${SRC_ROOT}/platform/${PLATFORM_DESCRIPT}/*.cpp)
+                        ${SRC_ROOT}/device/${DEVICE_DEPENDS}/*.cpp)
 
 set(LIB_IOTJS_CFLAGS ${CFLAGS})
 set(LIB_IOTJS_INCDIR ${TARGET_INC}
                      ${INC_ROOT}
                      ${SRC_ROOT}
                      ${JERRY_INCDIR}
-                     ${LIBUV_INCDIR}
+                     ${LIBTUV_INCDIR}
                      ${HTTPPARSER_INCDIR})
 
 
@@ -50,13 +50,13 @@ function(BuildIoTjs)
 
   add_executable(${targetName} ${SRC_MAIN})
   set_property(TARGET ${targetName}
-               PROPERTY COMPILE_FLAGS "${IOTJS_CFLAGS} -Wl,-Map=iotjs.map")
+               PROPERTY COMPILE_FLAGS "${IOTJS_CFLAGS} -Wl,-Map=iotjstuv.map")
   set_property(TARGET ${targetName}
-               PROPERTY LINK_FLAGS "${IOTJS_CFLAGS} -Wl,-Map=iotjs.map")
+               PROPERTY LINK_FLAGS "${IOTJS_CFLAGS} -Wl,-Map=iotjstuv.map")
   target_include_directories(${targetName} PRIVATE ${LIB_IOTJS_INCDIR})
   target_include_directories(${targetName} SYSTEM PRIVATE ${TARGET_INC})
   target_link_libraries(${targetName} libiotjs ${JERRY_LIB}
-    ${LIBUV_LIB} ${HTTPPARSER_LIB})
+    ${LIBTUV_LIB} ${HTTPPARSER_LIB})
   add_dependencies(targetLibIoTjs ${targetName})
 
 endfunction()
@@ -71,7 +71,7 @@ function(BuildIoTjsLib)
                PROPERTY LINK_FLAGS "${IOTJS_CFLAGS}")
   target_include_directories(${targetName} PRIVATE ${LIB_IOTJS_INCDIR})
   target_link_libraries(${targetName} libiotjs ${JERRY_LIB}
-    ${LIBUV_LIB} ${HTTPPARSER_LIB})
+    ${LIBTUV_LIB} ${HTTPPARSER_LIB})
   add_dependencies(targetLibIoTjs ${targetName})
 endfunction()
 

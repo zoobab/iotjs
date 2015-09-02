@@ -17,6 +17,7 @@
 #ifndef IOTJS_DEF_H
 #define IOTJS_DEF_H
 
+#include <limits.h> // PATH_MAX
 
 #ifndef IOTJS_MAX_READ_BUFFER_SIZE
  #ifdef __NUTTX__

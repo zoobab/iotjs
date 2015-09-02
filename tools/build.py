@@ -56,6 +56,9 @@ JERRY_ROOT = join_path([DEPS_ROOT, 'jerry'])
 # Root directory for libuv submodule.
 LIBUV_ROOT = join_path([DEPS_ROOT, 'libuv'])
 
+# Root directory for libtuv submodule.
+LIBTUV_ROOT = join_path([DEPS_ROOT, 'libtuv'])
+
 # Root directory for http-parser submodule.
 HTTPPARSER_ROOT = join_path([DEPS_ROOT, 'http-parser'])
 
@@ -64,6 +67,9 @@ JERRY_BUILD_SUFFIX = 'deps/jerry'
 
 # Build direcrtory suffix for libuv build.
 LIBUV_BUILD_SUFFIX = 'deps/libuv'
+
+# Build direcrtory suffix for libtuv build.
+LIBTUV_BUILD_SUFFIX = 'deps/libtuv'
 
 # Build direcrtory suffix for http-parser build.
 HTTPPARSER_BUILD_SUFFIX = 'deps/http-parser'
@@ -134,6 +140,7 @@ options = {
     'buildtype': 'debug',
     'builddir': 'build',
     'buildlib': False,
+    'tuv': False,
     'target-arch': sys_machine(),
     'target-os': sys_name(),
     'target-board': '',
@@ -148,6 +155,7 @@ options = {
 }
 
 boolean_opts = ['buildlib',
+                'tuv',
                 'init-submodule',
                 'tidy',
                 'jerry-memstats',
@@ -164,6 +172,9 @@ def opt_build_root():
                       options['builddir'],
                       opt_target_tuple(),
                       opt_build_type()])
+
+def opt_tuv():
+    return options['tuv']
 
 def opt_build_libs():
     return join_path([opt_build_root(), 'libs'])
@@ -270,6 +281,9 @@ def check_cached(cache_path):
 def libuv_output_path():
     return join_path([opt_build_libs(), "libuv.a"])
 
+def libtuv_output_path():
+    return join_path([opt_build_libs(), "libtuv.a"])
+
 def libhttpparser_output_path():
     return join_path([opt_build_libs(), "libhttpparser.a"])
 
@@ -334,6 +348,72 @@ def build_libuv():
 
     return True
 
+def build_libtuv():
+    # check libtuv submodule directory.
+    if not check_path(LIBTUV_ROOT):
+        print '* libtuv build failed - submodule not exists.'
+        return False
+
+    # get libtuv get hash.
+    git_hash = get_git_hash(LIBTUV_ROOT)
+
+    # libtuv build directory.
+    build_home = join_path([opt_build_root(), LIBTUV_BUILD_SUFFIX])
+
+    # cached library.
+    build_cache_dir = join_path([build_home, 'cache'])
+    build_cache_path = get_cache_path(build_cache_dir, 'libtuv', git_hash)
+
+    libtuv_cmake_opt = [LIBTUV_ROOT]
+
+    libtuv_cmake_opt.append('-DCMAKE_TOOLCHAIN_FILE=' +
+                            opt_cmake_toolchain_file())
+
+    # check if cache is available.
+    if not check_cached(build_cache_path):
+
+        # make build directory.
+        mkdir(build_home)
+
+        # change current directory to libtuv.
+        os.chdir(build_home)
+
+        # set build type.
+        build_type = opt_build_type()
+
+        libtuv_cmake_opt.append("-DCMAKE_BUILD_TYPE=" + build_type)
+
+        # set target
+        target_platform = opt_target_tuple()
+
+        libtuv_cmake_opt.append('-DTARGET_PLATFORM=' + target_platform)
+
+        # lib output
+        libtuvout = build_home
+
+        libtuv_cmake_opt.append('-DLIBTUV_CUSTOM_LIB_OUT=' + libtuvout)
+
+        # cmake
+        check_run_cmd('cmake', libtuv_cmake_opt)
+
+        check_run_cmd('make')
+
+        output = join_path([build_home, 'libtuv.a'])
+
+        # check if target is created.
+        if not check_path(output):
+            print '* libtuv build failed - target not produced.'
+            return False
+
+        # copy output to cache
+        mkdir(build_cache_dir)
+        copy(output, build_cache_path)
+
+    # copy cache to libs directory
+    mkdir(opt_build_libs())
+    copy(build_cache_path, libtuv_output_path())
+
+    return True
 
 def is_need_fdlibm():
     return opt_target_arch() == 'arm' and opt_target_os() == 'nuttx'
@@ -554,6 +634,11 @@ def build_iotjs():
     iotjs_cmake_opt.append('-DCMAKE_TOOLCHAIN_FILE=' +
                            opt_cmake_toolchain_file())
 
+    # tell libtuv target os
+    if opt_tuv():
+        iotjs_cmake_opt.append('-DTARGET_OS=' + opt_target_os())
+        iotjs_cmake_opt.append('-DWITH_TUV=YES')
+
     # for nuttx build.
     if opt_target_arch() == 'arm' and opt_target_os() =='nuttx':
         iotjs_cmake_opt.append('-DNUTTX_HOME=' + opt_nuttx_home())
@@ -612,10 +697,16 @@ if opt_init_submodule():
 # make build directory.
 mkdir(opt_build_root())
 
-# build libuv.
-if not build_libuv():
-    print_error("Failed build_libuv")
-    sys.exit(1)
+if opt_tuv():
+    # build libtuv.
+    if not build_libtuv():
+        print_error("Failed build_libtuv")
+        sys.exit(1)
+else:
+    # build libuv.
+    if not build_libuv():
+        print_error("Failed build_libuv")
+        sys.exit(1)
 
 # build jerry lib.
 if not build_libjerry():
