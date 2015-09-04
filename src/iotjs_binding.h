@@ -117,6 +117,10 @@ class JObject {
                       bool direct_mode = true,
                       bool strict_mode = false);
 
+  static JResult Eval(const char* source,
+                      bool direct_mode = true,
+                      bool strict_mode = false);
+
 
   // Destoyer for this class.
   // When the wrapper is being destroyed, ref count for correspoding javascript

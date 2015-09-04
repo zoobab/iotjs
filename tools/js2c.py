@@ -46,6 +46,12 @@ def removeComments(code):
 def removeWhitespaces(code):
     return re.sub('\n+', '\n', re.sub('\n +', '\n', code))
 
+def wrapFunctionString(code):
+    buf = '(function (a, b, c) { function wwwwrap(exports, require, module) { '
+    buf += code
+    buf += '}; wwwwrap(a, b, c); });'
+    return buf
+
 
 LICENSE = '''/* Copyright 2015 Samsung Electronics Co., Ltd.
  *
@@ -95,7 +101,12 @@ for path in files:
     fout.write('const char ' + name + '_n [] = "' + name + '";\n')
     fout.write('const char ' + name + '_s [] = {\n')
 
-    code = open(path, 'r').read() + '\0'
+    code = open(path, 'r').read()
+
+    if name != 'iotjs':
+        code = wrapFunctionString(code)
+
+    code += '\0'
 
     # minimize code when release mode
     if buildtype != 'debug':

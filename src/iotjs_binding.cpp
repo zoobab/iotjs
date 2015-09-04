@@ -257,6 +257,28 @@ JResult JObject::Eval(const String& source,
 }
 
 
+JResult JObject::Eval(const char* source,
+                      bool direct_mode,
+                      bool strict_mode) {
+  JRawValueType res;
+  jerry_completion_code_t ret = jerry_api_eval(
+      reinterpret_cast<const jerry_api_char_t*>(source),
+      strlen(source),
+      direct_mode,
+      strict_mode,
+      &res);
+
+  IOTJS_ASSERT(ret == JERRY_COMPLETION_CODE_OK ||
+               ret == JERRY_COMPLETION_CODE_UNHANDLED_EXCEPTION);
+
+  JResultType type = (ret == JERRY_COMPLETION_CODE_OK)
+                     ? JRESULT_OK
+                     : JRESULT_EXCEPTION;
+
+  return JResult(&res, type);
+}
+
+
 void JObject::SetMethod(const char* name, JHandlerType handler) {
   IOTJS_ASSERT(IsObject());
   JObject method(jerry_api_create_external_function(handler));
