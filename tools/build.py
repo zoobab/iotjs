@@ -367,7 +367,8 @@ def build_libtuv():
     libtuv_cmake_opt = [LIBTUV_ROOT]
 
     libtuv_cmake_opt.append('-DCMAKE_TOOLCHAIN_FILE=' +
-                            opt_cmake_toolchain_file())
+                            join_path([LIBTUV_ROOT, 'cmake/config/config_' +
+                                      opt_target_tuple() + ".cmake"]))
 
     # check if cache is available.
     if not check_cached(build_cache_path):
@@ -380,24 +381,26 @@ def build_libtuv():
 
         # set build type.
         build_type = opt_build_type()
-
         libtuv_cmake_opt.append("-DCMAKE_BUILD_TYPE=" + build_type)
 
         # set target
         target_platform = opt_target_tuple()
-
         libtuv_cmake_opt.append('-DTARGET_PLATFORM=' + target_platform)
+
+        # for nuttx build.
+        if opt_target_arch() == 'arm' and opt_target_os() =='nuttx':
+            # system root
+            libtuv_cmake_opt.append('-DTARGET_SYSTEMROOT=' + opt_nuttx_home())
+            # target board
+            libtuv_cmake_opt.append('-DTARGET_BOARD=' + opt_target_board())
 
         # lib output
         libtuvout = build_home
-
         libtuv_cmake_opt.append('-DLIBTUV_CUSTOM_LIB_OUT=' + libtuvout)
 
-        # cmake
+        # cmake and make
         check_run_cmd('cmake', libtuv_cmake_opt)
-
         check_run_cmd('make')
-
         output = join_path([build_home, 'libtuv.a'])
 
         # check if target is created.
@@ -721,6 +724,28 @@ if not build_libhttpparser():
 if not build_iotjs():
     print_error("Failed build_iotjs")
     sys.exit(1)
+
+if opt_target_arch() == 'arm' and opt_target_os() =='nuttx':
+    nuttx_lib = join_path([opt_nuttx_home(), 'lib'])
+
+    copy(libhttpparser_output_path(), nuttx_lib)
+    if opt_tuv():
+        copy(libtuv_output_path(), nuttx_lib)
+    else:
+        copy(libuv_output_path(), nuttx_lib)
+
+    if opt_jerry_memstats():
+        libjerry_output_path = join_path([opt_build_libs(),
+                                         'libjerrycore-mem_stats.a'])
+    else:
+        libjerry_output_path = join_path([opt_build_libs(), 'libjerrycore.a'])
+    copy(libjerry_output_path, nuttx_lib)
+
+    libfdlibm_output_path = join_path([opt_build_libs(), 'libfdlibm.a'])
+    copy(libfdlibm_output_path, nuttx_lib)
+
+    iotjs_output_path = join_path([opt_build_root(), 'iotjs', 'liblibiotjs.a'])
+    copy(iotjs_output_path, nuttx_lib)
 
 if opt_checktest():
     # do check test only when target is host.

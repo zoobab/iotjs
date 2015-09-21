@@ -47,9 +47,9 @@ def removeWhitespaces(code):
     return re.sub('\n+', '\n', re.sub('\n +', '\n', code))
 
 def wrapFunctionString(code):
-    buf = '(function (a, b, c) { function wwwwrap(exports, require, module) { '
+    buf = '(function(exports, require, module) {\n'
     buf += code
-    buf += '}; wwwwrap(a, b, c); });'
+    buf += '});\n'
     return buf
 
 
