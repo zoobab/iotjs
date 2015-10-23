@@ -206,7 +206,7 @@ function connectionListener(socket) {
   socket.on("end", socketOnEnd);
   socket.on("error", socketOnError);
   socket.on("close", socketOnClose);
-
+/*
   if (self.timeout) {
     socket.setTimeout(self.timeout);
   }
@@ -224,7 +224,7 @@ function connectionListener(socket) {
     if(!serverTimeout && !reqTimeout && !resTimeout)
       socket.destroy();
   });
-
+*/
 
 
   function socketOnData(data) {
