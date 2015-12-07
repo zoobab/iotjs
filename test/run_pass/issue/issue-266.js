@@ -13,6 +13,9 @@
  * limitations under the License.
  */
 
+/*
+ @NOTEST
+*/
 
 var net = require('net');
 var assert = require('assert');

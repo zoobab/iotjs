@@ -24,5 +24,5 @@ var filePath = "../resources/tobeornottobe.txt";
 
 fs.readFile(filePath, function(err, data) {
   assert.equal(err, null);
-  console.log(data);
+  console.log(data.toString());
 });

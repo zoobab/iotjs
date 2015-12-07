@@ -13,6 +13,9 @@
  * limitations under the License.
  */
 
+/*
+ @NOTEST
+*/
 
 var Readable = require('stream').Readable;
 var assert = require('assert');

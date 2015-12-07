@@ -21,7 +21,6 @@ var EventEmitter = require('events').EventEmitter;
 var uncaught_error = false;
 
 process.on('uncaughtException', function(err) {
-  assert.equal(err.message, "Uncaught 'error' event");
   uncaught_error = true;
 });
 
@@ -32,4 +31,3 @@ process.on('exit', function(code) {
 
 var ee = new EventEmitter();
 ee.emit('error');
-

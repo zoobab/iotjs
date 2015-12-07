@@ -43,7 +43,7 @@ try {
 
   assert.equal(bytes1, bytes3);
 
-  console.log(buffer.toString());
+  console.log(buffer.toString('utf8', 0, bytes3));
 } catch (err) {
   throw err;
 }

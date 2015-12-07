@@ -184,13 +184,18 @@ Buffer.prototype.slice = function(start, end) {
 };
 
 
-// buff.toString([,start[, end]])
-// [1] buff.toString()
-// [2] buff.toString(start)
-// [3] buff.toString(start, end)
+// buff.toString([encoding, [,start[, end]]])
+// [1] buff.toString([encoding])
+// [2] buff.toString(start, end)
+// [3] buff.toString(encoding, start, end)
 // * start - default to 0
 // * end - default to buff.lengfth
-Buffer.prototype.toString = function(start, end) {
+Buffer.prototype.toString = function(encoding, start, end) {
+  if (util.isUndefined(end)) {
+    end = start;
+    start = encoding;
+  }
+
   start = util.isUndefined(start) ? 0 : ~~start;
   end = util.isUndefined(end) ? this.length : ~~end;
 
