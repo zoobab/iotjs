@@ -22,4 +22,5 @@ var assert = require('assert');
 
 var filePath = "../resources/tobeornottobe.txt";
 
-console.log(fs.readFileSync(filePath));
+var buf = fs.readFileSync(filePath);
+console.log(buf.toString());

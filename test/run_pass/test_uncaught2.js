@@ -32,7 +32,7 @@ process.on('exit', function() {
 });
 
 setTimeout(function() {
-  trace += 'B'
+  trace += 'B';
 }, 500);
 
 nonexistentFunc();

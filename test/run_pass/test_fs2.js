@@ -33,8 +33,8 @@ function onWrite(err, written, buffer) {
   } else {
     var fd = fs.openSync(dstFilePath, 'r');
     var buffer = new Buffer(128);
-    fs.readSync(fd, buffer, 0, buffer.length, 0);
-    console.log(buffer.toString());
+    var r_bytes = fs.readSync(fd, buffer, 0, buffer.length, 0);
+    console.log(buffer.toString('utf8', 0, r_bytes));
   }
 }
 
@@ -50,7 +50,7 @@ function onRead(err, bytesRead, buffer) {
   if (err) {
     throw err;
   } else {
-    data = new Buffer(buffer.toString());
+    data = new Buffer(buffer.toString('utf8', 0, bytesRead));
     fs.open(dstFilePath, 'w', onOpenForWrite);
   }
 }

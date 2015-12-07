@@ -16,7 +16,6 @@
 var assert = require('assert');
 
 
-assert.assert(1 == 1);
 
 assert.equal(1, 1);
 assert.notEqual(1, 2);
@@ -35,14 +34,14 @@ assert.throws(
 
 assert.throws(
   function() {
-    assert.assert(1 == 2);
+    assert.equal(1, 2);
   },
   assert.AssertionError
 );
 
 assert.doesNotThrow(
   function() {
-    assert.assert(1 == 1);
+    assert.equal(1, 1);
   }
 );
 
@@ -50,7 +49,7 @@ assert.throws(
   function() {
     assert.doesNotThrow(
       function() {
-        assert.assert(1 == 2);
+        assert.equal(1, 2);
       }
     );
   },
@@ -58,7 +57,7 @@ assert.throws(
 );
 
 try {
-  assert.assert(false, 'assert test');
+  assert.equal(false, true, 'assert test');
 } catch (e) {
   assert.equal(e.name, 'AssertionError');
   assert.equal(e.actual, false);

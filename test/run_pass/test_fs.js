@@ -32,8 +32,8 @@ var mode = 438;
 try {
   var fd = fs.openSync(fileName, flags, mode);
   var buffer = new Buffer(64);
-  fs.readSync(fd, buffer, 0, buffer.length, 0);
-  assert.equal(buffer.toString(), expectedContents);
+  var r_bytes = fs.readSync(fd, buffer, 0, buffer.length, 0);
+  assert.equal(buffer.toString('utf8', 0, r_bytes), expectedContents);
 } catch (err) {
   throw err;
 }
@@ -49,8 +49,8 @@ fs.open(fileName, flags, mode, function(err, fd) {
       if (err) {
         throw err;
       } else {
-        assert.equal(buffer.toString(), expectedContents);
-        console.log(buffer.toString());
+        assert.equal(buffer.toString('utf8', 0, bytesRead), expectedContents);
+        console.log(buffer.toString('utf8', 0, bytesRead));
       }
     });
   }
